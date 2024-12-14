@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Little lemon</string>
+    <string name="little_lemon">Little lemon</string>
+    <string name="title">Little Lemon</string>
+    <string name="Order">Order Take Away</string>
+    <string name="chicago">Chicago</string>
+    <string name="order_for_takeaway">ORDER FOR TAKEAWAY</string>
+    <string name="add_for">%1$s $%.2f</string>
+    <string name="description_one">We are a family owned Mediterranean restaurant, focused on traditional recipes served with a modern twist.</string>
+    <string name="title_activity_main">MainActivity</string>
+</resources>
