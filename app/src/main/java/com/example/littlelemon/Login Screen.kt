@@ -45,6 +45,7 @@ data class User(val username: String, val password: String)
 private const val PREF_NAME = "com.example.littlelemon.prefs"
 private const val KEY_IS_LOGGED_IN = "isLoggedIn"
 
+
 fun setLoggedInState(context: Context, isLoggedIn: Boolean) {
     val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     val editor = sharedPreferences.edit()
@@ -89,6 +90,8 @@ fun LoginScreen(navController: NavHostController){
         mutableStateOf(false)
     }
 
+//    val interactionSource = remember { MutableInteractionSource() }
+//    var isUnderlined by remember { mutableStateOf(false) }
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordFocusRequester = remember { FocusRequester() }
@@ -113,7 +116,7 @@ fun LoginScreen(navController: NavHostController){
         OutlinedTextField(
             value = username.value,
             onValueChange = { username.value = it },
-            label = { Text(text = "Username") },
+            placeholder = { Text(text = "Username") },
 
             modifier = Modifier.padding(horizontal = 10.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -135,7 +138,7 @@ fun LoginScreen(navController: NavHostController){
         OutlinedTextField(
             value = password.value,
             onValueChange = { password.value = it },
-            label = { Text(text = "Password") },
+            placeholder = { Text(text = "Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.padding(10.dp).focusRequester(passwordFocusRequester),
             colors = OutlinedTextFieldDefaults.colors(
@@ -160,6 +163,25 @@ fun LoginScreen(navController: NavHostController){
             )
         )
 
+//        Text(
+//            text = "Forgot Password?",
+//            color = Color.Blue,
+//            style = androidx.compose.ui.text.TextStyle(
+//                textDecoration = if (isUnderlined) TextDecoration.Underline else TextDecoration.None
+//            ),
+//            modifier = Modifier
+//                .padding(end = 20.dp, bottom = 8.dp)
+//                .align(Alignment.End)
+//                .clickable(
+//                    indication = null, // Remove ripple effect
+//                    interactionSource = interactionSource // Disable interaction highlights
+//                ) {
+//                    isUnderlined = true
+//                    // Handle Forgot Password Click
+//                    // Example: navController.navigate("forgot_password_route")
+//                }
+//        )
+
         if (showError) {
             Text(
                 text = "Invalid credentials. Please try again.",
@@ -167,6 +189,13 @@ fun LoginScreen(navController: NavHostController){
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
+
+//        if (isUnderlined) {
+//            LaunchedEffect(isUnderlined) {
+//                delay(200) // 200ms delay before removing the underline
+//                isUnderlined = false
+//            }
+//        }
 
         Button(
             onClick = { if (performLogin(context, username.value, password.value)) {
