@@ -115,7 +115,7 @@ fun LoginScreen(navController: NavHostController){
         )
         OutlinedTextField(
             value = username.value,
-            onValueChange = { username.value = it },
+            onValueChange = { username.value = it.trim() },
             placeholder = { Text(text = "Username") },
 
             modifier = Modifier.padding(horizontal = 10.dp),
@@ -137,7 +137,7 @@ fun LoginScreen(navController: NavHostController){
 
         OutlinedTextField(
             value = password.value,
-            onValueChange = { password.value = it },
+            onValueChange = { password.value = it.trim() },
             placeholder = { Text(text = "Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.padding(10.dp).focusRequester(passwordFocusRequester),
@@ -155,7 +155,7 @@ fun LoginScreen(navController: NavHostController){
             keyboardActions = KeyboardActions(
                 onDone = {
                     if (performLogin(context, username.value, password.value)) {
-                        navController.navigate(Home.route)
+                        navController.navigate("timetable/${username.value}")
                     } else {
                         showError = true
                     }
@@ -199,7 +199,7 @@ fun LoginScreen(navController: NavHostController){
 
         Button(
             onClick = { if (performLogin(context, username.value, password.value)) {
-                    navController.navigate(Home.route)
+                    navController.navigate("timetable/${username.value}")
                 } else {
                     showError = true
                 }

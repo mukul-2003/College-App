@@ -37,13 +37,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(){
     val navController = rememberNavController()
-    val context = LocalContext.current
     NavHost(navController = navController, startDestination = Login.route){
         composable(Login.route){
             LoginScreen(navController)
         }
-        composable(Home.route){
-            MyNavigation(navController, context)
+        composable(
+            route = "timetable/{username}",
+            arguments = listOf(navArgument("username") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+            MyNavigation(navController, username)
         }
     }
 }
