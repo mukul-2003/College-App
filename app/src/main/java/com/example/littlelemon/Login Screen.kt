@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.compose.foundation.layout.Row
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -53,10 +54,10 @@ fun setLoggedInState(context: Context, isLoggedIn: Boolean) {
     editor.apply()
 }
 
-fun loadUsersFromAssets(context: Context): List<User> {
+fun loadUsersFromAssets(context: Context, fileName: String): List<User> {
     val users = mutableListOf<User>()
     try {
-        val inputStream = context.assets.open("login_credentials.json")
+        val inputStream = context.assets.open(fileName)
         val jsonString = inputStream.bufferedReader().use { it.readText() }
         val jsonObject = JSONObject(jsonString)
         val jsonArray: JSONArray = jsonObject.getJSONArray("users")
@@ -73,8 +74,9 @@ fun loadUsersFromAssets(context: Context): List<User> {
     return users
 }
 
-fun performLogin(context: Context, username: String, password: String): Boolean {
-    val users = loadUsersFromAssets(context)
+fun performLogin(context: Context, username: String, password: String, role: String): Boolean {
+    val fileName = if (role == "student") "login_credentials.json" else "Faculty_credentials.json"
+    val users = loadUsersFromAssets(context, fileName)
     val user = users.find { it.username == username && it.password == password }
     if (user != null) {
         setLoggedInState(context, true)
@@ -94,6 +96,7 @@ fun LoginScreen(navController: NavHostController){
 //    var isUnderlined by remember { mutableStateOf(false) }
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf("student") }
     val passwordFocusRequester = remember { FocusRequester() }
     val backgroundColor = Color(230, 230, 230)
     val focusManager = LocalFocusManager.current
@@ -113,6 +116,27 @@ fun LoginScreen(navController: NavHostController){
             contentDescription = "Logo Image",
             modifier = Modifier.padding(10.dp).size(150.dp)
         )
+
+        Row(
+            modifier = Modifier.padding(10.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = { selectedRole = "student" },
+                modifier = Modifier.padding(5.dp),
+                colors = ButtonDefaults.buttonColors(if (selectedRole == "student") Color.Blue else Color.Gray)
+            ) {
+                Text(text = "Student", color = Color.White)
+            }
+            Button(
+                onClick = { selectedRole = "teacher" },
+                modifier = Modifier.padding(5.dp),
+                colors = ButtonDefaults.buttonColors(if (selectedRole == "teacher") Color.Blue else Color.Gray)
+            ) {
+                Text(text = "Teacher", color = Color.White)
+            }
+        }
+
         OutlinedTextField(
             value = username.value,
             onValueChange = { username.value = it.trim() },
@@ -154,7 +178,7 @@ fun LoginScreen(navController: NavHostController){
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    if (performLogin(context, username.value, password.value)) {
+                    if (performLogin(context, username.value, password.value, selectedRole)) {
                         navController.navigate("timetable/${username.value}")
                     } else {
                         showError = true
@@ -198,7 +222,7 @@ fun LoginScreen(navController: NavHostController){
 //        }
 
         Button(
-            onClick = { if (performLogin(context, username.value, password.value)) {
+            onClick = { if (performLogin(context, username.value, password.value, selectedRole)) {
                     navController.navigate("timetable/${username.value}")
                 } else {
                     showError = true

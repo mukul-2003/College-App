@@ -27,5 +27,18 @@
     ],
     "THU": [],
     "FRI": []
+  },
+  "Hello1": {
+    "MON": [
+      {"time": "11:00 AM - 12:30 PM", "subject": "Cloud Computing", "location": "D1 - LAB102"}
+    ],
+    "TUE": [
+      {"time": "02:00 PM - 03:30 PM", "subject": "Cybersecurity Basics", "location": "E3 - SJT118"}
+    ],
+    "WED": [
+      {"time": "01:00 PM - 02:00 PM", "subject": "Artificial Intelligence", "location": "C1 - AI101"}
+    ],
+    "THU": [],
+    "FRI": []
   }
 }
