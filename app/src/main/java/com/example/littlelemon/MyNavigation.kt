@@ -34,13 +34,7 @@ fun MyNavigation(navController: NavController, username: String){
     Column {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
-        TopAppBar(navController, context, drawerState, coroutineScope)
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(8.dp)
-            .background(Color(11,11,69))
-        )
-        DaysTabLayout(userTimetable)
+        TopAppBar(navController, context, drawerState, coroutineScope, timetable = userTimetable)
     }
 }
 

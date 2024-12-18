@@ -37,6 +37,7 @@ import androidx.navigation.NavHostController
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -57,6 +58,7 @@ fun setLoggedInState(context: Context, isLoggedIn: Boolean) {
 fun loadUsersFromAssets(context: Context, fileName: String): List<User> {
     val users = mutableListOf<User>()
     try {
+
         val inputStream = context.assets.open(fileName)
         val jsonString = inputStream.bufferedReader().use { it.readText() }
         val jsonObject = JSONObject(jsonString)
@@ -94,6 +96,7 @@ fun LoginScreen(navController: NavHostController){
 
 //    val interactionSource = remember { MutableInteractionSource() }
 //    var isUnderlined by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     var selectedRole by remember { mutableStateOf("student") }
@@ -179,6 +182,7 @@ fun LoginScreen(navController: NavHostController){
             keyboardActions = KeyboardActions(
                 onDone = {
                     if (performLogin(context, username.value, password.value, selectedRole)) {
+                        keyboardController?.hide()
                         navController.navigate("timetable/${username.value}")
                     } else {
                         showError = true
@@ -223,6 +227,7 @@ fun LoginScreen(navController: NavHostController){
 
         Button(
             onClick = { if (performLogin(context, username.value, password.value, selectedRole)) {
+                    keyboardController?.hide()
                     navController.navigate("timetable/${username.value}")
                 } else {
                     showError = true

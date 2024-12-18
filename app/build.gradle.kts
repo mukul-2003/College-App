@@ -63,6 +63,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("androidx.compose.foundation:foundation:1.7.6")
+    implementation("androidx.compose.material3:material3:1.3.1")
     implementation("androidx.compose.material:material-icons-extended-android:1.7.6")
     implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
