@@ -14,78 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.littlelemon.TimetableEntry
+import kotlinx.coroutines.launch
 
-//@Composable
-//fun DaysTabLayout(
-//    timetable: Map<String, List<TimetableEntry>>
-//) {
-//    var selectedTabIndex by remember { mutableIntStateOf(0) }
-//    val tabs = listOf("MON", "TUE", "WED", "THU", "FRI")
-//    val pagerState = rememberPagerState {
-//        tabs.size
-//    }
-//    LaunchedEffect(selectedTabIndex) {
-//        pagerState.animateScrollToPage(selectedTabIndex)
-//    }
-//    LaunchedEffect(pagerState.currentPage) {
-//        selectedTabIndex = pagerState.currentPage
-//    }
-//
-//
-//    Column() {
-//        TabRow(
-//            selectedTabIndex = selectedTabIndex,
-//            backgroundColor = Color(11, 11, 69),
-//            modifier = Modifier.height(36.dp)
-//        ) {
-//            tabs.forEachIndexed { index, tab ->
-//                Tab(
-//                    selected = selectedTabIndex == index,
-//                    onClick = { selectedTabIndex = index},
-//                    selectedContentColor = Color.White,
-//                    unselectedContentColor = Color.LightGray,
-//                ) {
-//                    Text(
-//                        text = tab, fontSize = 15.sp,
-//                        modifier = Modifier.padding(horizontal = 16.dp),
-//                        fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-//                    )
-//                }
-//            }
-//        }
-//
-//        HorizontalPager(state = pagerState, modifier = Modifier
-//            .fillMaxWidth()
-//            .weight(1f)
-//        ) { pageIndex ->
-//            val day = tabs[pageIndex]
-//            val timetableForDay = timetable[day] ?: emptyList()
-//
-//            Box(
-//                modifier = Modifier.fillMaxSize(),
-//                contentAlignment = Alignment.TopCenter
-//            ) {
-//                if (timetableForDay.isEmpty()) {
-//                    Text(
-//                        text = "No classes for $day",
-//                        color = Color.Gray,
-//                        fontSize = 16.sp
-//                    )
-//                } else {
-//                    Column(
-//                        modifier = Modifier.padding(16.dp),
-//                        verticalArrangement = Arrangement.spacedBy(8.dp)
-//                    ) {
-//                        timetableForDay.forEach { entry ->
-//                            TimetableCard(entry)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
 @Composable
 fun TimetableCard(entry: TimetableEntry) {
     Card(
@@ -125,10 +55,12 @@ fun DaysTabLayout(
 
     // Synchronize Tab and Pager
     LaunchedEffect(selectedTabIndex) {
-        pagerState.animateScrollToPage(selectedTabIndex)
+        pagerState.scrollToPage(selectedTabIndex)
     }
     LaunchedEffect(pagerState.currentPage) {
-        selectedTabIndex = pagerState.currentPage
+        if (pagerState.currentPage != selectedTabIndex) {
+            selectedTabIndex = pagerState.currentPage
+        }
     }
 
     Column {
@@ -136,12 +68,15 @@ fun DaysTabLayout(
         TabRow(
             selectedTabIndex = selectedTabIndex,
             backgroundColor = Color(11, 11, 69),
-            modifier = Modifier.height(36.dp)
+            modifier = Modifier.height(36.dp),
+            indicator = { }
         ) {
             tabs.forEachIndexed { index, tab ->
                 Tab(
                     selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index },
+                    onClick = {
+                        selectedTabIndex = index
+                    },
                     selectedContentColor = Color.White,
                     unselectedContentColor = Color.LightGray,
                 ) {
