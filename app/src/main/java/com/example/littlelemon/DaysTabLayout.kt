@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class)
+package com.example.littlelemon
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
@@ -10,11 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.littlelemon.TimetableEntry
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Collections.emptyList
+import java.util.Locale
 
 @Composable
 fun TimetableCard(entry: TimetableEntry) {
@@ -23,44 +26,58 @@ fun TimetableCard(entry: TimetableEntry) {
         elevation = 6.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Text(
-                text = entry.time,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Color(11, 11, 69)
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = entry.subject,
                 fontSize = 18.sp,
-                color = Color(11, 11, 69)
-            )
-            Text(
-                text = entry.location,
                 fontWeight = FontWeight.Bold,
                 color = Color(11, 11, 69),
-                fontSize = 16.sp
+                modifier = Modifier.padding(start = 12.dp)
+            )
+            Text(
+                text = entry.time,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(end = 12.dp),
+                color = Color(11, 11, 69)
             )
         }
     }
 }
 
+
 @Composable
 fun DaysTabLayout(
     timetable: Map<String, List<TimetableEntry>>
 ) {
-    val tabs = listOf("MON", "TUE", "WED", "THU", "FRI") // Fixed list of days
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val pagerState = rememberPagerState { tabs.size }
+    val tabs = listOf("MON", "TUE", "WED", "THU", "FRI")
+
+    val today = remember {
+        val dayFormat = SimpleDateFormat("EEE", Locale.ENGLISH)
+        val day = dayFormat.format(Calendar.getInstance().time).uppercase()
+        when (day) {
+            "MON" -> 0
+            "TUE" -> 1
+            "WED" -> 2
+            "THU" -> 3
+            "FRI" -> 4
+            else -> 0 // default to Monday if weekend
+        }
+    }
+
+    var selectedTabIndex by remember { mutableStateOf(today) }
+    val pagerState = rememberPagerState(initialPage = today, pageCount = { tabs.size })
+    val coroutineScope = rememberCoroutineScope()
 
     // Synchronize Tab and Pager
-    LaunchedEffect(selectedTabIndex) {
-        pagerState.scrollToPage(selectedTabIndex)
-    }
     LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage != selectedTabIndex) {
-            selectedTabIndex = pagerState.currentPage
-        }
+        selectedTabIndex = pagerState.currentPage
     }
 
     Column {
@@ -74,9 +91,8 @@ fun DaysTabLayout(
             tabs.forEachIndexed { index, tab ->
                 Tab(
                     selected = selectedTabIndex == index,
-                    onClick = {
-                        selectedTabIndex = index
-                    },
+                    onClick = { selectedTabIndex = index
+                        coroutineScope.launch { pagerState.animateScrollToPage(index) } },
                     selectedContentColor = Color.White,
                     unselectedContentColor = Color.LightGray,
                 ) {

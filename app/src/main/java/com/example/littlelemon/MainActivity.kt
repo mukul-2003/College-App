@@ -77,6 +77,12 @@ fun MyApp(){
                 val username = backStackEntry.arguments?.getString("username") ?: ""
                 MyNavigation(navController, username)
             }
+            composable("attendance") {
+                AttendanceNavigation(navController)
+            }
+            composable("resetPassword") {
+                ResetPasswordScreen(navController)
+            }
         }
     } else {
         NetworkErrorScreen(onRetry = {

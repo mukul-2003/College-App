@@ -8,5 +8,8 @@ val items  = listOf(
     ),
     HamburgerNavigation(
         title = "Attendance"
+    ),
+    HamburgerNavigation(
+        title = "Reset Password"
     )
 )
