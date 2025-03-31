@@ -1,13 +1,15 @@
-package com.example.littlelemon
+package com.college.friendapp
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -57,37 +59,40 @@ fun NetworkErrorScreen(onRetry: () -> Unit) {
 fun MyApp(){
     val navController = rememberNavController()
     val context = LocalContext.current
-
-    // Remember and monitor network state
     val networkState = remember { NetworkState(context) }
     DisposableEffect(Unit) {
         networkState.startMonitoring()
         onDispose { networkState.stopMonitoring() }
     }
 
-    if(networkState.isConnected.value){
-        NavHost(navController = navController, startDestination = Login.route){
-            composable(Login.route){
-                LoginScreen(navController)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.White
+    ) {
+        if (networkState.isConnected.value) {
+            NavHost(navController = navController, startDestination = Login.route) {
+                composable(Login.route) {
+                    LoginScreen(navController)
+                }
+                composable(
+                    route = "timetable/{username}",
+                    arguments = listOf(navArgument("username") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val username = backStackEntry.arguments?.getString("username") ?: ""
+                    MyNavigation(navController, username)
+                }
+                composable("attendance") {
+                    AttendanceNavigation(navController)
+                }
+                composable("resetPassword") {
+                    ResetPasswordScreen(navController)
+                }
             }
-            composable(
-                route = "timetable/{username}",
-                arguments = listOf(navArgument("username") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val username = backStackEntry.arguments?.getString("username") ?: ""
-                MyNavigation(navController, username)
-            }
-            composable("attendance") {
-                AttendanceNavigation(navController)
-            }
-            composable("resetPassword") {
-                ResetPasswordScreen(navController)
-            }
+        } else {
+            NetworkErrorScreen(onRetry = {
+                networkState.startMonitoring()
+            })
         }
-    } else {
-        NetworkErrorScreen(onRetry = {
-            networkState.startMonitoring()
-        })
     }
 }
 

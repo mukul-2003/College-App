@@ -1,4 +1,4 @@
-package com.example.littlelemon
+package com.college.friendapp
 
 import androidx.compose.ui.graphics.Color
 

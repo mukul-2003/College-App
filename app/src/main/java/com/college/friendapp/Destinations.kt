@@ -1,4 +1,4 @@
-package com.example.littlelemon
+package com.college.friendapp
 
 interface Destinations {
     val route:String

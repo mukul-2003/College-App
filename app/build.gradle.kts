@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.littlelemon"
+    namespace = "com.college.friendapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.littlelemon"
+        applicationId = "com.college.friendapp"
         minSdk = 25
         targetSdk = 34
         versionCode = 1

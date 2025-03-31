@@ -1,9 +1,11 @@
-package com.example.littlelemon
+package com.college.friendapp
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.littlelemon.TimetableEntry
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -22,9 +23,13 @@ import java.util.Locale
 @Composable
 fun TimetableCard(entry: TimetableEntry) {
     Card(
-        backgroundColor = Color(240, 240, 240),
-        elevation = 6.dp,
+        backgroundColor = Color(255, 255, 255, 255),
+        elevation = 12.dp,
+        shape = RoundedCornerShape(6.dp),
         modifier = Modifier.fillMaxWidth()
+            .border(width = 0.1.dp,
+                color = Color(11, 69, 69),
+                RoundedCornerShape(6.dp))
     ) {
         Row(
             modifier = Modifier
@@ -117,7 +122,7 @@ fun DaysTabLayout(
             val timetableForDay = timetable[day] ?: emptyList()
 
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().background(Color.White),
                 contentAlignment = Alignment.TopCenter
             ) {
                 if (timetableForDay.isEmpty()) {

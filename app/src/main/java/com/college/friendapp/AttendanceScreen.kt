@@ -1,5 +1,6 @@
-package com.example.littlelemon
+package com.college.friendapp
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun AttendanceNavigation(navController: NavController) {
@@ -33,6 +35,7 @@ fun AttendanceNavigation(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {

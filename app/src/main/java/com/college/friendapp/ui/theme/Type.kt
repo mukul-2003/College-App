@@ -1,4 +1,4 @@
-package com.example.littlelemon.ui.theme
+package com.college.friendapp.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

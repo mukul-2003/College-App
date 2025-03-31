@@ -1,17 +1,17 @@
-package com.example.littlelemon
+package com.college.friendapp
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -63,52 +63,51 @@ fun TopAppBar(
     ) {
         Scaffold(
             topBar = {
-                androidx.compose.material.TopAppBar(
-                    backgroundColor = Color(11, 11, 69),
-                    contentColor = Color.White,
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    drawerState.open()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    title = {
+                // 🔥✅ Replaced old TopAppBar() with custom Row to perfectly center title
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color(11, 11, 69)), // AppBar background color
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // ✅ Menu Icon (unchanged, same logic)
+                    IconButton(onClick = {
+                        scope.launch { drawerState.open() }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Menu",
+                            tint = Color.White
+                        )
+                    }
+
+                    // ✅ Title perfectly centered using Box + weight(1f)
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
                             text = screenTitle,
-                            modifier = Modifier.fillMaxWidth(),
                             color = Color.White,
-                            fontSize = 20.sp,
-                            textAlign = TextAlign.Center
+                            fontSize = 20.sp
                         )
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                FirebaseAuth.getInstance().signOut()
-                                navController.navigate(Login.route) {
-                                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                                }
-                            }
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.logout),
-                                contentDescription = "logout",
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .fillMaxWidth()
-                            )
-                        }
                     }
-                )
+
+                    // ✅ Logout Icon (unchanged, same logic)
+                    IconButton(onClick = {
+                        FirebaseAuth.getInstance().signOut()
+                        navController.navigate(Login.route) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        }
+                    }) {
+                        Image(
+                            painter = painterResource(id = R.drawable.logout),
+                            contentDescription = "Logout",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
             },
             content = { innerPadding ->
                 Box(
@@ -117,10 +116,8 @@ fun TopAppBar(
                         .padding(innerPadding)
                 ) {
                     if (showTabs) {
-                        // Time Table Content
                         DaysTabLayout(timetable)
                     } else {
-                        // Attendance Content passed from AttendanceNavigation
                         content()
                     }
                 }

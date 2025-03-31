@@ -1,4 +1,4 @@
-package com.example.littlelemon
+package com.college.friendapp
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.DrawerValue
@@ -6,7 +6,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.example.littlelemon.LoadingScreen
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await

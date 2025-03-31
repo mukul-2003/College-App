@@ -1,4 +1,4 @@
-package com.example.littlelemon
+package com.college.friendapp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
