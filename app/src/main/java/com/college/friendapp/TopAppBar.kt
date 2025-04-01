@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
-import items
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -35,22 +35,34 @@ fun TopAppBar(
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.fillMaxHeight().width(250.dp)) {
                 Spacer(modifier = Modifier.height(8.dp))
-                items.forEachIndexed { index, item ->
+
+                val auth = FirebaseAuth.getInstance()
+                val uid = auth.currentUser?.uid ?: ""
+                var userRole by remember { mutableStateOf("") }
+
+                // Fetch role from Firestore
+                LaunchedEffect(Unit) {
+                    FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                        .addOnSuccessListener { doc ->
+                            userRole = doc.getString("role") ?: ""
+                        }
+                }
+
+                val navItems = if (userRole == "faculty") facultyItems else studentItems
+
+                navItems.forEach { item ->
                     NavigationDrawerItem(
                         label = { Text(text = item.title) },
                         selected = false,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                if (item.title == "Attendance") {
-                                    navController.navigate("attendance")
-                                }
-                                if (item.title == "Time-Table") {
-                                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                                if (item.route.contains("timetable")) {
+                                    // Time-table needs username
+                                    val userId = auth.currentUser?.uid ?: ""
                                     navController.navigate("timetable/$userId")
-                                }
-                                if (item.title == "Reset Password") {
-                                    navController.navigate("resetPassword")
+                                } else {
+                                    navController.navigate(item.route)
                                 }
                             }
                         },
@@ -63,15 +75,13 @@ fun TopAppBar(
     ) {
         Scaffold(
             topBar = {
-                // 🔥✅ Replaced old TopAppBar() with custom Row to perfectly center title
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .background(Color(11, 11, 69)), // AppBar background color
+                        .background(Color(11, 11, 69)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // ✅ Menu Icon (unchanged, same logic)
                     IconButton(onClick = {
                         scope.launch { drawerState.open() }
                     }) {
@@ -82,7 +92,6 @@ fun TopAppBar(
                         )
                     }
 
-                    // ✅ Title perfectly centered using Box + weight(1f)
                     Box(
                         modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center
@@ -94,7 +103,6 @@ fun TopAppBar(
                         )
                     }
 
-                    // ✅ Logout Icon (unchanged, same logic)
                     IconButton(onClick = {
                         FirebaseAuth.getInstance().signOut()
                         navController.navigate(Login.route) {

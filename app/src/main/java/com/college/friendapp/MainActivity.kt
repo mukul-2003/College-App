@@ -2,7 +2,6 @@ package com.college.friendapp
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.setContent
@@ -18,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,15 +29,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyApp()
-        }
-    }
-
-    override fun onBackPressed() {
-        val navController = (findViewById<View>(android.R.id.content) as NavHost).navController
-        if (navController.currentDestination?.id == navController.graph.startDestinationId) {
-            finish()
-        } else {
-            super.onBackPressed()
         }
     }
 }
@@ -86,6 +75,22 @@ fun MyApp(){
                 }
                 composable("resetPassword") {
                     ResetPasswordScreen(navController)
+                }
+                composable("facultyDashboard") {
+                    FacultyDashboardScreen(navController)
+                }
+                composable("studentAttendance") {
+                    StudentAttendanceScreen(navController)
+                }
+                composable("facultyAttendance") {
+                    FacultyAttendanceScreen(navController)
+                }
+                composable(
+                    route = "markAttendance/{className}",
+                    arguments = listOf(navArgument("className") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val className = backStackEntry.arguments?.getString("className") ?: ""
+                    MarkAttendanceScreen(navController, className)
                 }
             }
         } else {

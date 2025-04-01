@@ -1,8 +1,9 @@
 package com.college.friendapp
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
@@ -25,7 +26,35 @@ fun MyNavigation(navController: NavController, userId: String) {
     var timetable by remember { mutableStateOf<Map<String, List<TimetableEntry>>>(emptyMap()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
+    var showExitDialog by remember { mutableStateOf(false) }
 
+    // Handle Back Press → Show Exit Confirmation
+    BackHandler {
+        showExitDialog = true
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text("Exit App") },
+            text = { Text("Do you want to exit the app?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showExitDialog = false
+                    (context as? Activity)?.finish()
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitDialog = false }) {
+                    Text("No")
+                }
+            }
+        )
+    }
+
+    // Fetch Timetable
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
@@ -38,13 +67,26 @@ fun MyNavigation(navController: NavController, userId: String) {
         }
     }
 
-    if (isLoading) {
-        LoadingScreen(message = "Loading..")
-    } else if (errorMessage.isNotEmpty()) {
-        androidx.compose.material.Text(text = "Error: $errorMessage")
-    } else {
-        Column {
-            TopAppBar(navController, context, drawerState, coroutineScope, timetable){}
+    // UI Content
+    when {
+        isLoading -> {
+            LoadingScreen(message = "Loading...")
+        }
+        errorMessage.isNotEmpty() -> {
+            Text(text = "Error: $errorMessage")
+        }
+        else -> {
+            Column {
+                TopAppBar(
+                    navController = navController,
+                    context = context,
+                    drawerState = drawerState,
+                    scope = coroutineScope,
+                    timetable = timetable
+                ) {
+                    // Content can go here if you want
+                }
+            }
         }
     }
 }
@@ -64,7 +106,8 @@ suspend fun fetchUserTimetable(userId: String): Map<String, List<TimetableEntry>
         val entries = rawList.map {
             TimetableEntry(
                 subject = it["Subject"]?.toString() ?: "",
-                time = it["Time"]?.toString() ?: ""
+                time = it["Time"]?.toString() ?: "",
+                location = it["Location"]?.toString() ?: ""
             )
         }
         timetableMap[day] = entries
