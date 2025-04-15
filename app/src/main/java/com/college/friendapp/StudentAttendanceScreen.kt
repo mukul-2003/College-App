@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -31,19 +32,23 @@ fun StudentAttendanceScreen(navController: NavController) {
 
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    LaunchedEffect(Unit) {
-        scope.launch {
-            try {
-                val doc = FirebaseFirestore.getInstance().collection("attendance")
-                    .document(uid).get().await()
-                val data = doc.get("attendance") as? Map<String, Boolean>
-                attendanceData = data ?: emptyMap()
-            } catch (e: Exception) {
-                errorMessage = "Failed to load attendance"
-            } finally {
-                isLoading = false
-            }
+    suspend fun fetchAttendance() {
+        try {
+            isLoading = true
+            val doc = FirebaseFirestore.getInstance().collection("attendance")
+                .document(uid).get().await()
+            val data = doc.get("attendance") as? Map<String, Boolean>
+            attendanceData = data ?: emptyMap()
+            errorMessage = ""
+        } catch (e: Exception) {
+            errorMessage = "Failed to load attendance"
+        } finally {
+            isLoading = false
         }
+    }
+
+    LaunchedEffect(Unit) {
+        scope.launch { fetchAttendance() }
     }
 
     TopAppBar(
@@ -70,12 +75,31 @@ fun StudentAttendanceScreen(navController: NavController) {
                 val present = attendanceData.values.count { it }
                 val percentage = if (total > 0) (present * 100) / total else 0
 
-                Text(
-                    text = "Percentage: $percentage%",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                ) {
+                    Text(
+                        text = "Percentage: $percentage%",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(
+                        onClick = {
+                            scope.launch { fetchAttendance() }
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.refresh), // uses your refresh.png
+                            contentDescription = "Refresh Attendance",
+                            tint = Color(11, 11, 69),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)

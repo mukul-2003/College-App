@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -38,13 +39,13 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
         sdf.format(Date())
     }
 
-    // 🔥 Fetch student list
+    // Fetch students
     LaunchedEffect(Unit) {
         scope.launch {
             try {
                 val snapshot = FirebaseFirestore.getInstance().collection("users")
                     .whereEqualTo("role", "student")
-                    .whereEqualTo("class", className) // Ensure this matches Firestore field
+                    .whereEqualTo("class", className)
                     .get().await()
 
                 val studentList = snapshot.documents.map { doc ->
@@ -111,7 +112,6 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                                         students = updatedList
                                     }
                                 )
-
                             }
                         }
                     }
@@ -121,13 +121,15 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                     onClick = {
                         scope.launch {
                             try {
+                                val db = FirebaseFirestore.getInstance()
                                 students.forEach { student ->
-                                    val ref = FirebaseFirestore.getInstance()
-                                        .collection("attendance").document(student.uid)
-                                    ref.update(
-                                        "attendance.$todayDate",
-                                        student.isPresent
-                                    ).await()
+                                    val ref = db.collection("attendance").document(student.uid)
+                                    val data = mapOf(
+                                        "attendance" to mapOf(
+                                            todayDate to student.isPresent
+                                        )
+                                    )
+                                    ref.set(data, SetOptions.merge()).await()
                                 }
                                 message = "Attendance marked successfully"
                             } catch (e: Exception) {
@@ -141,6 +143,7 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                 ) {
                     Text("Submit Attendance")
                 }
+
 
                 if (message.isNotEmpty()) {
                     Text(

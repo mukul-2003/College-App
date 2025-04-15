@@ -22,11 +22,11 @@ val studentItems = listOf(
 
 val facultyItems = listOf(
     HamburgerNavigation(
-        title = "Dashboard",
-        route = "facultyDashboard"
+        title = "Time-Table",
+        route = "timetable"
     ),
     HamburgerNavigation(
-        title = "My Attendance",
+        title = "Attendence Dashboard",
         route = "facultyDashboard"
     ),
     HamburgerNavigation(
