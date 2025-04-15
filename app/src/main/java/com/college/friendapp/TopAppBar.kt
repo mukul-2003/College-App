@@ -48,7 +48,11 @@ fun TopAppBar(
                         }
                 }
 
-                val navItems = if (userRole == "faculty") facultyItems else studentItems
+                val navItems = when (userRole) {
+                    "faculty" -> facultyItems
+                    "admin" -> adminItems
+                    else -> studentItems
+                }
 
                 navItems.forEach { item ->
                     NavigationDrawerItem(

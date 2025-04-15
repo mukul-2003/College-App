@@ -87,4 +87,13 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation("androidx.camera:camera-core:1.1.0")
+    implementation("androidx.camera:camera-camera2:1.1.0")
+    implementation("androidx.camera:camera-lifecycle:1.1.0")
+    implementation("androidx.camera:camera-view:1.0.0-alpha32")
+    implementation("com.google.mlkit:face-detection:16.1.5")
+    implementation("com.google.guava:guava:31.1-android")
+    implementation("org.tensorflow:tensorflow-lite:2.9.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.2")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.9.0")
 }

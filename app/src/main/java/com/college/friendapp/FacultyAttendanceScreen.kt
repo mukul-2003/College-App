@@ -26,30 +26,26 @@ fun FacultyAttendanceScreen(navController: NavController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    var attendanceData by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
+    // Update: store String instead of Boolean
+    var attendanceData by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
 
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    suspend fun fetchAttendance() {
-        try {
-            isLoading = true
-            val doc = FirebaseFirestore.getInstance().collection("attendance")
-                .document(uid).get().await()
-            val data = doc.get("attendance") as? Map<String, Boolean>
-            attendanceData = data ?: emptyMap()
-            errorMessage = ""
-        } catch (e: Exception) {
-            errorMessage = "Failed to load attendance"
-        } finally {
-            isLoading = false
-        }
-    }
-
-    // Initial load
     LaunchedEffect(Unit) {
-        scope.launch { fetchAttendance() }
+        scope.launch {
+            try {
+                val doc = FirebaseFirestore.getInstance().collection("attendance")
+                    .document(uid).get().await()
+                val data = doc.get("attendance") as? Map<String, String>
+                attendanceData = data ?: emptyMap()
+            } catch (e: Exception) {
+                errorMessage = "Failed to load attendance"
+            } finally {
+                isLoading = false
+            }
+        }
     }
 
     TopAppBar(
@@ -72,34 +68,78 @@ fun FacultyAttendanceScreen(navController: NavController) {
             } else if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
             } else {
-                val total = attendanceData.size
-                val present = attendanceData.values.count { it }
-                val percentage = if (total > 0) (present * 100) / total else 0
+                val present = attendanceData.values.count { it == "Present" }
+                val halfDay = attendanceData.values.count { it == "Half Day" }
+                val absent = attendanceData.values.count { it == "Absent" }
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "Percentage: $percentage%",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    IconButton(
-                        onClick = {
-                            scope.launch { fetchAttendance() }
-                        }
+                    Row(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.refresh), // uses your refresh.png
-                            contentDescription = "Refresh Attendance",
-                            tint = Color(11, 11, 69),
-                            modifier = Modifier.size(22.dp)
+                        Text(text = "P: ",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge
                         )
+                        Text(
+                            text = "$present",
+                            color = Color.Green, // Green
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(text = "  H: ",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            text = "$halfDay",
+                            color = Color.Yellow, // Yellow
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(text = "  A: ",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            text = "$absent",
+                            color = Color.Red, // Red
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        IconButton(
+                            onClick = {
+                                isLoading = true
+                                errorMessage = ""
+                                scope.launch {
+                                    try {
+                                        val doc = FirebaseFirestore.getInstance().collection("attendance")
+                                            .document(uid).get().await()
+                                        val data = doc.get("attendance") as? Map<String, String>
+                                        attendanceData = data ?: emptyMap()
+                                    } catch (e: Exception) {
+                                        errorMessage = "Failed to refresh attendance"
+                                    } finally {
+                                        isLoading = false
+                                    }
+                                }
+                            },
+                            modifier = Modifier.size(24.dp)
+                        )
+                        {
+                            Icon(
+                                painter = painterResource(id = R.drawable.refresh), // uses your refresh.png
+                                contentDescription = "Refresh Attendance",
+                                tint = Color(11, 11, 69),
+                                modifier = Modifier.size(20.dp).offset(y = 2.dp)
+                            )
+                        }
                     }
+
+
                 }
 
 
@@ -107,6 +147,14 @@ fun FacultyAttendanceScreen(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(attendanceData.entries.toList()) { entry ->
+                        val status = entry.value
+                        val statusColor = when (status) {
+                            "Present" -> Color.Green
+                            "Half Day" -> Color.Yellow
+                            "Absent" -> Color.Red
+                            else -> Color.Gray
+                        }
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -126,10 +174,7 @@ fun FacultyAttendanceScreen(navController: NavController) {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(text = entry.key)
-                                Text(
-                                    text = if (entry.value) "Present" else "Absent",
-                                    color = if (entry.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                                )
+                                Text(text = status, color = statusColor)
                             }
                         }
                     }

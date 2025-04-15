@@ -34,3 +34,18 @@ val facultyItems = listOf(
         route = "resetPassword"
     )
 )
+
+val adminItems = listOf(
+    HamburgerNavigation(
+        title = "Admin Panel",
+        route = "adminHome"
+    ),
+    HamburgerNavigation(
+        title = "Register Face",
+        route = "registerFace"
+    ),
+    HamburgerNavigation(
+        title = "Reset Password",
+        route = "resetPassword"
+    )
+)

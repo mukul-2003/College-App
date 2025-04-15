@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -87,15 +88,19 @@ fun LoginScreen(navController: NavHostController) {
                         isLoading = false
                         if (task.isSuccessful) {
                             val userId = auth.currentUser?.uid ?: ""
-                            navController.navigate("timetable/$userId")
+                            FirebaseFirestore.getInstance().collection("users").document(userId).get()
+                                .addOnSuccessListener { doc ->
+                                    val role = doc.getString("role") ?: ""
+                                    when (role) {
+                                        "admin" -> navController.navigate("adminHome")
+                                        "faculty" -> navController.navigate("timetable/$userId")
+                                        "student" -> navController.navigate("timetable/$userId")
+                                    }
+                                }
                         } else {
                             errorMessage = "Invalid login credentials"
                         }
-                    }.addOnFailureListener {
-                        isLoading = false
-                        errorMessage = "Invalid login credentials"
                     }
-
             },
             modifier = Modifier
                 .padding(top = 16.dp)
