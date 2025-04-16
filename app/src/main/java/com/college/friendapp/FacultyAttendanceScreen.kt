@@ -137,7 +137,7 @@ fun FacultyAttendanceScreen(navController: NavController) {
                                 painter = painterResource(id = R.drawable.refresh), // uses your refresh.png
                                 contentDescription = "Refresh Attendance",
                                 tint = Color(11, 11, 69),
-                                modifier = Modifier.size(20.dp).offset(y = 2.dp)
+                                modifier = Modifier.size(20.dp).offset(y = 1.dp)
                             )
                         }
                     }

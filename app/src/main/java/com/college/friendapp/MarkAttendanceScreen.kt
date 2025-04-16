@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -111,7 +112,13 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                                             if (it.uid == student.uid) it.copy(isPresent = checked) else it
                                         }
                                         students = updatedList
-                                    }
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = Color(11, 11, 69),  // Royal blue
+                                        uncheckedThumbColor = Color.White,
+                                        uncheckedTrackColor = Color(0xFFCCCCCC)
+                                    )
                                 )
                             }
                         }
@@ -141,7 +148,8 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp)
+                        .padding(top = 16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(11,11,69))
                 ) {
                     Text("Submit Attendance")
                 }

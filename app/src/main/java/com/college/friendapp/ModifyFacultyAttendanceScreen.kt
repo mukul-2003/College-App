@@ -138,6 +138,12 @@ fun ModifyFacultyAttendanceScreen(navController: NavController, uid: String) {
                                                         } else it
                                                     }
                                                 },
+                                                colors = SwitchDefaults.colors(
+                                                    checkedThumbColor = Color.White,
+                                                    checkedTrackColor = Color(11, 11, 69),  // Royal blue
+                                                    uncheckedThumbColor = Color.White,
+                                                    uncheckedTrackColor = Color(0xFFCCCCCC)
+                                                ),
                                                 enabled = !current.isHalfDay
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
