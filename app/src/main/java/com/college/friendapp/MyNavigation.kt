@@ -96,6 +96,9 @@ suspend fun fetchUserTimetable(userId: String): Map<String, List<TimetableEntry>
 
     val userDoc = db.collection("users").document(userId).get().await()
     val timetableId = userDoc.getString("timetable") ?: throw Exception("No timetableId found")
+    if (timetableId.isNullOrBlank()) {
+        throw Exception("No timetable assigned for this user.")
+    }
 
     val timetableDoc = db.collection("timetables").document(timetableId).get().await()
 
