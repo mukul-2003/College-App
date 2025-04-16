@@ -64,7 +64,7 @@ fun FacultyAttendanceScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                LoadingScreen(message = "")
             } else if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
             } else {
@@ -78,7 +78,8 @@ fun FacultyAttendanceScreen(navController: NavController) {
                 ) {
                     Row(
                         modifier = Modifier.padding(bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = "P: ",
                             fontWeight = FontWeight.Bold,
@@ -90,16 +91,18 @@ fun FacultyAttendanceScreen(navController: NavController) {
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge,
                         )
+                        Spacer(modifier = Modifier.padding(12.dp))
                         Text(text = "  H: ",
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
                             text = "$halfDay",
-                            color = Color.Yellow, // Yellow
+                            color = Color(255, 235, 59, 255), // Yellow
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge,
                         )
+                        Spacer(modifier = Modifier.padding(12.dp))
                         Text(text = "  A: ",
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge
@@ -150,7 +153,7 @@ fun FacultyAttendanceScreen(navController: NavController) {
                         val status = entry.value
                         val statusColor = when (status) {
                             "Present" -> Color.Green
-                            "Half Day" -> Color.Yellow
+                            "Half Day" -> Color(255, 235, 59, 255)
                             "Absent" -> Color.Red
                             else -> Color.Gray
                         }

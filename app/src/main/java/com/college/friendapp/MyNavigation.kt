@@ -70,7 +70,7 @@ fun MyNavigation(navController: NavController, userId: String) {
     // UI Content
     when {
         isLoading -> {
-            LoadingScreen(message = "Loading...")
+            LoadingScreen(message = "")
         }
         errorMessage.isNotEmpty() -> {
             Text(text = "Error: $errorMessage")

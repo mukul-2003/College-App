@@ -48,7 +48,7 @@ fun FacultyDashboardScreen(navController: NavController) {
         screenTitle = "Faculty Dashboard"
     ) {
         if (isLoading) {
-            LoadingScreen(message = "Loading...")
+            LoadingScreen(message = "")
         } else if (errorMessage.isNotEmpty()) {
             Text(text = errorMessage, modifier = Modifier.padding(16.dp))
         } else {

@@ -45,6 +45,10 @@ val adminItems = listOf(
         route = "registerFace"
     ),
     HamburgerNavigation(
+        title = "Attendance",
+        route = "adminAttendance"
+    ),
+    HamburgerNavigation(
         title = "Reset Password",
         route = "resetPassword"
     )

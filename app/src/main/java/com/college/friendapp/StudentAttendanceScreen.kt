@@ -67,7 +67,7 @@ fun StudentAttendanceScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                LoadingScreen(message = "")
             } else if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
             } else {

@@ -1,5 +1,6 @@
 package com.college.friendapp
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -79,7 +80,7 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                 .padding(16.dp)
         ) {
             if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                LoadingScreen(message = "")
             } else if (message.isNotEmpty()) {
                 Text(text = message, color = MaterialTheme.colorScheme.error)
             } else if (students.isEmpty()) {
@@ -131,7 +132,8 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                                     )
                                     ref.set(data, SetOptions.merge()).await()
                                 }
-                                message = "Attendance marked successfully"
+                                Toast.makeText(context, "Attendance marked successfully", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
                             } catch (e: Exception) {
                                 message = "Error marking attendance: ${e.message}"
                             }
@@ -142,15 +144,6 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                         .padding(top = 16.dp)
                 ) {
                     Text("Submit Attendance")
-                }
-
-
-                if (message.isNotEmpty()) {
-                    Text(
-                        text = message,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
                 }
             }
         }

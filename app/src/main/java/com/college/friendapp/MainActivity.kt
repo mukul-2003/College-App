@@ -109,6 +109,29 @@ fun MyApp(){
                     val uid = backStackEntry.arguments?.getString("uid") ?: ""
                     RegisterFaceCaptureScreen(navController, uid)
                 }
+                composable("adminAttendance") {
+                    AdminAttendanceScreen(navController)
+                }
+                composable("viewAttendanceList") {
+                    ViewFacultyListScreen(navController)
+                }
+                composable(
+                    route = "viewFacultyAttendance/{uid}",
+                    arguments = listOf(navArgument("uid") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val uid = backStackEntry.arguments?.getString("uid") ?: ""
+                    ViewFacultyAttendanceScreen(navController, uid)
+                }
+                composable("modifyAttendanceList") {
+                    ModifyFacultyListScreen(navController)
+                }
+                composable(
+                    route = "modifyFacultyAttendance/{uid}",
+                    arguments = listOf(navArgument("uid") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val uid = backStackEntry.arguments?.getString("uid") ?: ""
+                    ModifyFacultyAttendanceScreen(navController, uid)
+                }
             }
         } else {
             NetworkErrorScreen(onRetry = {

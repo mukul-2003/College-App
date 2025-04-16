@@ -79,9 +79,7 @@ fun RegisterFaceCaptureScreen(navController: NavController, facultyUid: String) 
                                         isSaved = true
                                         message = "Face saved!"
                                         navController.navigate("registerFace") {
-                                            popUpTo("registerFaceCapture/$facultyUid") {
-                                                inclusive = true
-                                            }
+                                            popUpTo("registerFace") { inclusive = true }
                                         }
                                     },
                                     onError = {
