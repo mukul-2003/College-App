@@ -1,12 +1,15 @@
 package com.college.friendapp
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -17,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
@@ -33,6 +37,7 @@ import kotlin.math.sqrt
 @Composable
 fun AdminCameraScreen(navController: NavController) {
     val context = LocalContext.current
+    val activity = context as? Activity
     val executor = remember { Executors.newSingleThreadExecutor() }
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val faceEmbeddingHelper = remember { FaceEmbeddingHelper(context) }
@@ -40,69 +45,92 @@ fun AdminCameraScreen(navController: NavController) {
 
     var resultMessage by remember { mutableStateOf("") }
     var attendanceMarked by remember { mutableStateOf("Absent") }
+    var cameraPermissionGranted by remember {
+        mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
+    }
+
+    LaunchedEffect(Unit) {
+        if (!cameraPermissionGranted && activity != null) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.CAMERA),
+                100
+            )
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        AndroidView(
-            factory = { ctx ->
-                val previewView = PreviewView(ctx).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                }
-
-                cameraProviderFuture.addListener({
-                    val cameraProvider = cameraProviderFuture.get()
-                    val preview = Preview.Builder().build().also {
-                        it.setSurfaceProvider(previewView.surfaceProvider)
+        if (cameraPermissionGranted) {
+            AndroidView(
+                factory = { ctx ->
+                    val previewView = PreviewView(ctx).apply {
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
                     }
 
-                    val analyzer = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
+                    cameraProviderFuture.addListener({
+                        try {
+                            val cameraProvider = cameraProviderFuture.get()
+                            val preview = Preview.Builder().build().also {
+                                it.setSurfaceProvider(previewView.surfaceProvider)
+                            }
 
-                    analyzer.setAnalyzer(executor) { imageProxy ->
-                        if (attendanceMarked == "Absent") {
-                            processRecognitionFlow(
-                                imageProxy,
-                                faceEmbeddingHelper,
-                                context,
-                                onMatched = { name, matchedUid ->
-                                    markAttendance(matchedUid)
-                                    resultMessage = "Attendance marked for: $name"
-                                    attendanceMarked = "Present"
-                                    Handler(Looper.getMainLooper()).postDelayed({
-                                        navController.navigate("adminHome") {
-                                            popUpTo("adminCamera") { inclusive = true }
+                            val analyzer = ImageAnalysis.Builder()
+                                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                                .build()
+
+                            analyzer.setAnalyzer(executor) { imageProxy ->
+                                if (attendanceMarked == "Absent") {
+                                    processRecognitionFlow(
+                                        imageProxy,
+                                        faceEmbeddingHelper,
+                                        context,
+                                        onMatched = { name, matchedUid ->
+                                            markAttendance(matchedUid)
+                                            resultMessage = "Attendance marked for: $name"
+                                            attendanceMarked = "Present"
+                                            Handler(Looper.getMainLooper()).postDelayed({
+                                                navController.navigate("adminHome") {
+                                                    popUpTo("adminCamera") { inclusive = true }
+                                                }
+                                            }, 1000)
+                                        },
+                                        onFailed = {
+                                            resultMessage = "No match found"
                                         }
-                                    }, 1000)
-                                },
-                                onFailed = {
-                                    resultMessage = "No match found"
+                                    )
+                                } else {
+                                    imageProxy.close()
                                 }
+                            }
+
+                            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+                            cameraProvider.unbindAll()
+                            cameraProvider.bindToLifecycle(
+                                lifecycleOwner,
+                                cameraSelector,
+                                preview,
+                                analyzer
                             )
-                        } else {
-                            imageProxy.close()
+                        } catch (e: Exception) {
+                            Log.e("AdminCameraScreen", "Camera setup failed", e)
                         }
-                    }
+                    }, ContextCompat.getMainExecutor(ctx))
 
-                    val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        cameraSelector,
-                        preview,
-                        analyzer
-                    )
-                }, ContextCompat.getMainExecutor(ctx))
-
-                previewView
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        )
+                    previewView
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+        } else {
+            Text(
+                text = "Camera permission not granted. Please allow it in settings.",
+                modifier = Modifier.padding(16.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
@@ -131,7 +159,7 @@ private fun processRecognitionFlow(
     detector.process(image)
         .addOnSuccessListener { faces ->
             if (faces.isNotEmpty()) {
-                val bitmap = imageProxyToBitmap(mediaImage, imageProxy.imageInfo.rotationDegrees)
+                val bitmap = imageProxyToBitmap(imageProxy)
                 val liveEmbedding = helper.getEmbedding(bitmap)
 
                 FirebaseFirestore.getInstance().collection("face_embeddings").get()
@@ -186,6 +214,38 @@ private fun markAttendance(uid: String) {
         .addOnFailureListener {
             Log.e("FaceRecognition", "Failed to mark: ${it.message}")
         }
+}
+
+@OptIn(ExperimentalGetImage::class)
+fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap {
+    val image = imageProxy.image ?: throw IllegalArgumentException("Image is null")
+    val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+
+    val yBuffer = image.planes[0].buffer
+    val uBuffer = image.planes[1].buffer
+    val vBuffer = image.planes[2].buffer
+
+    val ySize = yBuffer.remaining()
+    val uSize = uBuffer.remaining()
+    val vSize = vBuffer.remaining()
+
+    val nv21 = ByteArray(ySize + uSize + vSize)
+    yBuffer.get(nv21, 0, ySize)
+    vBuffer.get(nv21, ySize, vSize)
+    uBuffer.get(nv21, ySize + vSize, uSize)
+
+    val yuvImage = android.graphics.YuvImage(
+        nv21, android.graphics.ImageFormat.NV21, image.width, image.height, null
+    )
+
+    val out = ByteArrayOutputStream()
+    yuvImage.compressToJpeg(android.graphics.Rect(0, 0, image.width, image.height), 100, out)
+    val yuv = out.toByteArray()
+    val bitmap = android.graphics.BitmapFactory.decodeByteArray(yuv, 0, yuv.size)
+
+    val matrix = Matrix()
+    matrix.postRotate(rotationDegrees.toFloat())
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 }
 
 private fun euclideanDistance(a: FloatArray, b: FloatArray): Float {
