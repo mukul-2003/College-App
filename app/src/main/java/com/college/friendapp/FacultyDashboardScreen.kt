@@ -62,7 +62,17 @@ fun FacultyDashboardScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            navController.navigate("markAttendance/$facultyClass")
+                            scope.launch {
+                                val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                                val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
+                                val stream = userDoc.getString("stream") ?: ""
+
+                                if (stream.lowercase() == "arts") {
+                                    navController.navigate("artsScheduledClassList")
+                                } else {
+                                    navController.navigate("markAttendance/$facultyClass")
+                                }
+                            }
                         }
                 ) {
                     Column(

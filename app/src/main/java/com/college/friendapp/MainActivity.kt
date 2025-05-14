@@ -132,6 +132,21 @@ fun MyApp(){
                     val uid = backStackEntry.arguments?.getString("uid") ?: ""
                     ModifyFacultyAttendanceScreen(navController, uid)
                 }
+                composable("artsStudentAttendance") {
+                    ArtsStudentAttendanceScreen(navController)
+                }
+                composable("artsScheduledClassList") {
+                    ArtsScheduledClassListScreen(navController)
+                }
+
+                composable(
+                    route = "artsMarkAttendance/{class_subject}",
+                    arguments = listOf(navArgument("class_subject") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val classSubject = backStackEntry.arguments?.getString("class_subject") ?: ""
+                    val (className, subjectName) = classSubject.split("_")
+                    ArtsMarkAttendanceScreen(navController, className, subjectName)
+                }
             }
         } else {
             NetworkErrorScreen(onRetry = {

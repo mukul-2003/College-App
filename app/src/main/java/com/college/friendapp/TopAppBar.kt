@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun TopAppBar(
@@ -39,19 +40,23 @@ fun TopAppBar(
                 val auth = FirebaseAuth.getInstance()
                 val uid = auth.currentUser?.uid ?: ""
                 var userRole by remember { mutableStateOf("") }
+                val navItems = remember { mutableStateListOf<HamburgerNavigation>() }
 
-                // Fetch role from Firestore
-                LaunchedEffect(Unit) {
-                    FirebaseFirestore.getInstance().collection("users").document(uid).get()
-                        .addOnSuccessListener { doc ->
-                            userRole = doc.getString("role") ?: ""
+                LaunchedEffect(uid) {
+                    try {
+                        val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
+                        userRole = userDoc.getString("role") ?: ""
+
+                        val items = when (userRole) {
+                            "faculty" -> facultyItems
+                            "admin" -> adminItems
+                            "student" -> getStudentNavItems(uid)
+                            else -> emptyList()
                         }
-                }
 
-                val navItems = when (userRole) {
-                    "faculty" -> facultyItems
-                    "admin" -> adminItems
-                    else -> studentItems
+                        navItems.clear()
+                        navItems.addAll(items)
+                    } catch (e: Exception) { }
                 }
 
                 navItems.forEach { item ->
@@ -62,7 +67,6 @@ fun TopAppBar(
                             scope.launch {
                                 drawerState.close()
                                 if (item.route.contains("timetable")) {
-                                    // Time-table needs username
                                     val userId = auth.currentUser?.uid ?: ""
                                     navController.navigate("timetable/$userId")
                                 } else {
@@ -135,5 +139,20 @@ fun TopAppBar(
                 }
             }
         )
+    }
+}
+
+suspend fun getStudentNavItems(uid: String): List<HamburgerNavigation> {
+    val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
+    val stream = userDoc.getString("stream") ?: "COMMERCE"
+
+    return if (stream == "ARTS") {
+        studentItems.map {
+            if (it.route == "studentAttendance")
+                it.copy(route = "artsStudentAttendance")
+            else it
+        }
+    } else {
+        studentItems
     }
 }

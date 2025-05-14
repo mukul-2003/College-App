@@ -20,12 +20,6 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
 
-data class StudentAttendance(
-    val uid: String,
-    val name: String,
-    var isPresent: Boolean
-)
-
 @Composable
 fun MarkAttendanceScreen(navController: NavController, className: String) {
     val context = LocalContext.current
