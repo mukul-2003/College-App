@@ -15,6 +15,10 @@ val studentItems = listOf(
         route = "studentAttendance"
     ),
     HamburgerNavigation(
+        title = "Updates",
+        route = "updates"
+    ),
+    HamburgerNavigation(
         title = "Reset Password",
         route = "resetPassword"
     )
@@ -29,6 +33,14 @@ val facultyItems = listOf(
         title = "Attendence Dashboard",
         route = "facultyDashboard"
     ),
+    HamburgerNavigation(
+        title = "Updates",
+        route = "updates"
+    ),
+//    HamburgerNavigation(
+//        title = "Send Update",
+//        route = "sendUpdate"
+//    ),
     HamburgerNavigation(
         title = "Reset Password",
         route = "resetPassword"
@@ -47,6 +59,14 @@ val adminItems = listOf(
     HamburgerNavigation(
         title = "Attendance",
         route = "adminAttendance"
+    ),
+    HamburgerNavigation(
+        title = "Send Update",
+        route = "sendUpdate"
+    ),
+    HamburgerNavigation(
+        title = "Updates",
+        route = "updates"
     ),
     HamburgerNavigation(
         title = "Reset Password",

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -88,15 +89,18 @@ fun LoginScreen(navController: NavHostController) {
                         isLoading = false
                         if (task.isSuccessful) {
                             val userId = auth.currentUser?.uid ?: ""
-                            FirebaseFirestore.getInstance().collection("users").document(userId).get()
-                                .addOnSuccessListener { doc ->
-                                    val role = doc.getString("role") ?: ""
-                                    when (role) {
-                                        "admin" -> navController.navigate("adminHome")
-                                        "faculty" -> navController.navigate("timetable/$userId")
-                                        "student" -> navController.navigate("timetable/$userId")
-                                    }
+                            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+                            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                                userDocRef.update("fcmToken", token)
+                            }
+                            userDocRef.get().addOnSuccessListener { doc ->
+                                val role = doc.getString("role") ?: ""
+                                when (role) {
+                                    "admin" -> navController.navigate("adminHome")
+                                    "faculty" -> navController.navigate("timetable/$userId")
+                                    "student" -> navController.navigate("timetable/$userId")
                                 }
+                            }
                         } else {
                             errorMessage = "Invalid login credentials"
                         }

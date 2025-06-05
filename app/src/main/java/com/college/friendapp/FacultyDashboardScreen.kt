@@ -20,6 +20,7 @@ fun FacultyDashboardScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     var facultyClass by remember { mutableStateOf("") }
+    var stream by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -30,6 +31,7 @@ fun FacultyDashboardScreen(navController: NavController) {
                 val doc = FirebaseFirestore.getInstance().collection("users")
                     .document(uid).get().await()
                 facultyClass = doc.getString("class") ?: ""
+                stream = doc.getString("stream") ?: ""
             } catch (e: Exception) {
                 errorMessage = "Failed to load data"
             } finally {
@@ -64,10 +66,11 @@ fun FacultyDashboardScreen(navController: NavController) {
                         .clickable {
                             scope.launch {
                                 val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-                                val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
-                                val stream = userDoc.getString("stream") ?: ""
+                                val userDoc = FirebaseFirestore.getInstance().collection("users")
+                                    .document(uid).get().await()
+                                val streamVal = userDoc.getString("stream") ?: ""
 
-                                if (stream.lowercase() == "arts") {
+                                if (streamVal.lowercase() == "arts") {
                                     navController.navigate("artsScheduledClassList")
                                 } else {
                                     navController.navigate("markAttendance/$facultyClass")
@@ -75,11 +78,11 @@ fun FacultyDashboardScreen(navController: NavController) {
                             }
                         }
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "Mark Attendance")
-                        Text(text = "Class: $facultyClass")
+                        if (stream.lowercase() != "arts") {
+                            Text(text = "Class: $facultyClass")
+                        }
                     }
                 }
 

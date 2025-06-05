@@ -61,7 +61,7 @@ fun TimetableCard(entry: TimetableEntry) {
 fun DaysTabLayout(
     timetable: Map<String, List<TimetableEntry>>
 ) {
-    val tabs = listOf("MON", "TUE", "WED", "THU", "FRI")
+    val tabs = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT")
 
     val today = remember {
         val dayFormat = SimpleDateFormat("EEE", Locale.ENGLISH)
@@ -72,6 +72,7 @@ fun DaysTabLayout(
             "WED" -> 2
             "THU" -> 3
             "FRI" -> 4
+            "SAT" -> 5
             else -> 0 // default to Monday if weekend
         }
     }
@@ -104,7 +105,7 @@ fun DaysTabLayout(
                     Text(
                         text = tab,
                         fontSize = 15.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp),
                         fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
                     )
                 }

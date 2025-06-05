@@ -147,6 +147,13 @@ fun MyApp(){
                     val (className, subjectName) = classSubject.split("_")
                     ArtsMarkAttendanceScreen(navController, className, subjectName)
                 }
+
+                composable("updates") {
+                    UpdatesScreen(navController)
+                }
+                composable("sendUpdate") {
+                    SendUpdateScreen(navController)
+                }
             }
         } else {
             NetworkErrorScreen(onRetry = {
