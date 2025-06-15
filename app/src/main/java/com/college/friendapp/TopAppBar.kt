@@ -112,15 +112,27 @@ fun TopAppBar(
                     }
 
                     IconButton(onClick = {
+                        navController.navigate("updates")
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.bell),
+                            contentDescription = "Updates",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    IconButton(onClick = {
                         FirebaseAuth.getInstance().signOut()
                         navController.navigate(Login.route) {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }
                         }
                     }) {
-                        Image(
+                        Icon(
                             painter = painterResource(id = R.drawable.logout),
                             contentDescription = "Logout",
-                            modifier = Modifier.size(24.dp)
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }

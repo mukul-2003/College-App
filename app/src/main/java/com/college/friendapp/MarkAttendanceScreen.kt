@@ -4,7 +4,9 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,7 +52,7 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                         name = doc.getString("name") ?: "",
                         isPresent = true
                     )
-                }
+                }.sortedBy { it.name.lowercase() }
                 students = studentList
             } catch (e: Exception) {
                 message = "Failed to load students: ${e.message}"
@@ -73,6 +75,7 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             if (isLoading) {
                 LoadingScreen(message = "")
@@ -81,40 +84,36 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
             } else if (students.isEmpty()) {
                 Text(text = "No students found in class: $className")
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(students) { student ->
-                        Card(
+                students.forEach { student ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            elevation = CardDefaults.cardElevation(4.dp)
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = student.name)
-                                Switch(
-                                    checked = student.isPresent,
-                                    onCheckedChange = { checked ->
-                                        val updatedList = students.map {
-                                            if (it.uid == student.uid) it.copy(isPresent = checked) else it
-                                        }
-                                        students = updatedList
-                                    },
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = Color.White,
-                                        checkedTrackColor = Color(11, 11, 69),  // Royal blue
-                                        uncheckedThumbColor = Color.White,
-                                        uncheckedTrackColor = Color(0xFFCCCCCC)
-                                    )
+                            Text(text = student.name)
+                            Switch(
+                                checked = student.isPresent,
+                                onCheckedChange = { checked ->
+                                    students = students.map {
+                                        if (it.uid == student.uid) it.copy(isPresent = checked) else it
+                                    }
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Color(11, 11, 69),
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Color(0xFFCCCCCC)
                                 )
-                            }
+                            )
                         }
                     }
                 }
@@ -127,13 +126,15 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                                 students.forEach { student ->
                                     val ref = db.collection("attendance").document(student.uid)
                                     val data = mapOf(
-                                        "attendance" to mapOf(
-                                            todayDate to student.isPresent
-                                        )
+                                        "attendance" to mapOf(todayDate to student.isPresent)
                                     )
                                     ref.set(data, SetOptions.merge()).await()
                                 }
-                                Toast.makeText(context, "Attendance marked successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Attendance marked successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 navController.popBackStack()
                             } catch (e: Exception) {
                                 message = "Error marking attendance: ${e.message}"
@@ -143,7 +144,7 @@ fun MarkAttendanceScreen(navController: NavController, className: String) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(11,11,69))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(11, 11, 69))
                 ) {
                     Text("Submit Attendance")
                 }

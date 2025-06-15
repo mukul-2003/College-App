@@ -28,26 +28,37 @@ fun TimetableCard(entry: TimetableEntry) {
         shape = RoundedCornerShape(6.dp),
         modifier = Modifier.fillMaxWidth()
             .border(width = 0.1.dp,
-                color = Color(11, 69, 69),
+                color = Color(11, 11, 69),
                 RoundedCornerShape(6.dp))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(65.dp)
+                .height(75.dp)
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Column(
+                modifier = Modifier.padding(start = 12.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = entry.subject,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(11, 11, 69),
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = entry.className,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,   // not bold
+                    color = Color(11,11,69)
+                )
+            }
             Text(
-                text = entry.subject,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(11, 11, 69),
-                modifier = Modifier.padding(start = 12.dp)
-            )
-            Text(
-                text = entry.time,
+                text = runCatching { toRomanNumeral(entry.Period.toInt()) }.getOrDefault(entry.Period),
                 fontSize = 16.sp,
                 modifier = Modifier.padding(end = 12.dp),
                 color = Color(11, 11, 69)
@@ -147,4 +158,19 @@ fun DaysTabLayout(
             }
         }
     }
+}
+
+fun toRomanNumeral(number: Int): String {
+    val romanMap = mapOf(
+        1 to "I",
+        2 to "II",
+        3 to "III",
+        4 to "IV",
+        5 to "V",
+        6 to "VI",
+        7 to "VII",
+        8 to "VIII",
+        9 to "IX"
+    )
+    return romanMap[number] ?: number.toString()
 }

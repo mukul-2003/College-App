@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "527441711708",
-    "project_id": "collegeapp-c2cfc",
-    "storage_bucket": "collegeapp-c2cfc.firebasestorage.app"
+    "project_number": "910535694192",
+    "project_id": "collegeapp-1a68f",
+    "storage_bucket": "collegeapp-1a68f.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:527441711708:android:0ab7c633a7fe0fafc68c99",
+        "mobilesdk_app_id": "1:910535694192:android:ba5f1dbdbca7d63467e1b5",
         "android_client_info": {
           "package_name": "com.college.friendapp"
         }
@@ -15,7 +15,26 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBH70EeyVmdyRxIIgszZye2Doyci75A6zw"
+          "current_key": "AIzaSyBNdY1XP31ahDsOgmZThAetNXaAH_0rMjQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910535694192:android:dc94accbad20abc367e1b5",
+        "android_client_info": {
+          "package_name": "com.sir.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNdY1XP31ahDsOgmZThAetNXaAH_0rMjQ"
         }
       ],
       "services": {

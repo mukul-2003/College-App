@@ -18,7 +18,7 @@ import java.util.*
 data class ArtsPeriod(
     val className: String,
     val subject: String,
-    val time: String
+    val period: String
 )
 
 @Composable
@@ -51,7 +51,7 @@ fun ArtsScheduledClassListScreen(navController: NavController) {
                     ArtsPeriod(
                         className = it["Class"] ?: "Unknown",
                         subject = it["Subject"] ?: "Unknown",
-                        time = it["Time"] ?: "Unknown"
+                        period = it["Period"] ?: "Unknown"
                     )
                 }
 
@@ -89,7 +89,9 @@ fun ArtsScheduledClassListScreen(navController: NavController) {
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("Class: ${period.className}")
-                            Text("Time: ${period.time}")
+                            Text(
+                                text = "Period: " + runCatching { toRomanNumeral(period.period.toInt()) }.getOrDefault(period.period)
+                            )
                         }
                     }
                 }

@@ -12,9 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 data class TimetableEntry(
-    val time: String = "",
+    val Period: String = "",
     val subject: String = "",
-    val location: String = ""
+    val className: String = ""
 )
 
 @Composable
@@ -53,12 +53,16 @@ fun MyNavigation(navController: NavController, userId: String) {
             }
         )
     }
+    var userRole by remember { mutableStateOf("") }
 
     // Fetch Timetable
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
-                timetable = fetchUserTimetable(userId)
+                val userDoc = FirebaseFirestore.getInstance().collection("users").document(userId).get().await()
+                val role = userDoc.getString("role") ?: ""
+                userRole = role
+                timetable = fetchUserTimetable(userId, role)
             } catch (e: Exception) {
                 errorMessage = e.message ?: "Error fetching timetable"
             } finally {
@@ -91,7 +95,7 @@ fun MyNavigation(navController: NavController, userId: String) {
     }
 }
 
-suspend fun fetchUserTimetable(userId: String): Map<String, List<TimetableEntry>> {
+suspend fun fetchUserTimetable(userId: String, role: String): Map<String, List<TimetableEntry>> {
     val db = FirebaseFirestore.getInstance()
 
     val userDoc = db.collection("users").document(userId).get().await()
@@ -109,8 +113,12 @@ suspend fun fetchUserTimetable(userId: String): Map<String, List<TimetableEntry>
         val entries = rawList.map {
             TimetableEntry(
                 subject = it["Subject"]?.toString() ?: "",
-                time = it["Time"]?.toString() ?: "",
-                location = it["Location"]?.toString() ?: ""
+                Period = it["Period"]?.toString() ?: "",
+                className = if (role == "faculty") {
+                    it["Class"]?.toString() ?: ""
+                } else {
+                    "By: ${it["Teacher"]?.toString() ?: ""}"
+                }
             )
         }
         timetableMap[day] = entries

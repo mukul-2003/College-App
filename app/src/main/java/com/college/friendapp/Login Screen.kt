@@ -90,9 +90,6 @@ fun LoginScreen(navController: NavHostController) {
                         if (task.isSuccessful) {
                             val userId = auth.currentUser?.uid ?: ""
                             val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
-                            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                                userDocRef.update("fcmToken", token)
-                            }
                             userDocRef.get().addOnSuccessListener { doc ->
                                 val role = doc.getString("role") ?: ""
                                 when (role) {
